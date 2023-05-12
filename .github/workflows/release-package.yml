@@ -36,7 +36,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
       - run: git config --global user.name "github-action[bot]"
-      - run: npm version ${{ inputs.versioning_type }} -m "tagged by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
+      - run: npm version ${{ inputs.versioning_type }} -m "v%s - tagged by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
       - name: Push commit
         uses: ad-m/github-push-action@master
         with:
