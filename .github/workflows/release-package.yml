@@ -1,11 +1,21 @@
 name: Release Package
 
 on:
-  workflow_run:
-    workflows: ["Bump Version"]
-    types: [completed]
+#  push:
+#    branches: [main] # main 머지 시 자동배포 원하는 경우 사용
+  workflow_dispatch:
+    inputs:
+      versioning_type:
+        description: 'Semantic Versioning Type (major/minor/patch)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 jobs:
-  build:
+  run-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -15,8 +25,26 @@ jobs:
       - run: npm ci
       - run: npm run test
 
+  bump-version:
+    needs: run-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: git config --global user.email "${{ github.actor }}[bot]@users.noreply.github.com"
+      - run: git config --global user.name "${{ github.actor }}[bot]"
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      - run: npm version ${{ inputs.versioning_type }}
+      - name: Push commit
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: "main"
+          tags: true
+
   publish-gpr:
-    needs: build
+    needs: bump-version
     runs-on: ubuntu-latest
     permissions:
       packages: write
