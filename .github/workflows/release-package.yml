@@ -14,8 +14,6 @@ on:
           - patch
           - minor
           - major
-          
-run-name: Release Package - ${{inputs.versioning_type}} update
 
 jobs:
   run-test:
