@@ -34,9 +34,9 @@ jobs:
         with:
           node-version: 18.x
           registry-url: https://npm.pkg.github.com/
-      - run: git config --global user.email "${{ github.actor }}[bot]@users.noreply.github.com"
-      - run: git config --global user.name "${{ github.actor }}[bot]"
-      - run: npm version ${{ inputs.versioning_type }}
+      - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
+      - run: git config --global user.name "github-action[bot]"
+      - run: npm version ${{ inputs.versioning_type }} -m "tagged by ${{github.run_id}} ${{github.run_number}}"
       - name: Push commit
         uses: ad-m/github-push-action@master
         with:
