@@ -15,7 +15,7 @@ on:
           - minor
           - major
           
-run-name: "${{ github.event.head_commit.message }}"
+run-name: ${{inputs.versioning_type}} release - ${{ github.event.head_commit.message }}
 
 jobs:
   run-test:
