@@ -7,14 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: git config --global user.email "${{ github.actor }}"
-      - run: git config --global user.name "${{ github.actor }}"
       - uses: actions/setup-node@v1
         with:
           node-version: 16
       - run: npm version patch
-      - run: git push origin main --tags
-      - uses: actions/upload-artifact@v2
+      - name: Push commit
+        uses: ad-m/github-push-action@master
         with:
-          name: src
-          path: ./
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: "main"
+          tags: true
