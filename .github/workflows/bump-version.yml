@@ -3,7 +3,7 @@ name: Bump Version
 on: 
   workflow_dispatch:
     inputs:
-      version_type:
+      versioning_type:
         description: 'Semantic Versioning Type (major/minor/patch)'
         required: true
         default: 'patch'
@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18.x
-      - run: npm version patch
+      - run: npm version ${{ inputs.versioning_type }}
       - name: Push commit
         uses: ad-m/github-push-action@master
         with:
