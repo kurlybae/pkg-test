@@ -15,7 +15,7 @@ on:
           - minor
           - major
           
-run-name: ${{inputs.versioning_type}} release - ${{ github.event.head_commit.message }}
+run-name: Release Package - ${{inputs.versioning_type}} update
 
 jobs:
   run-test:
