@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: 16.x
           registry-url: https://npm.pkg.github.com/
+      - run: npm ci
       # npm version
       - run: echo "BRANCH_NAME=${{github.event.pull_request.head.ref}}" >> $GITHUB_ENV
       - run: echo "VERSION=${BRANCH_NAME/release\/}" >> $GITHUB_ENV
