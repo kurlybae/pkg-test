@@ -5,8 +5,6 @@ on:
     types: [ closed ]
     branches: [ main ]
 
-#  push:
-#    branches: [main]
 jobs:
   publish-gpr:
     if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
@@ -35,6 +33,13 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: "main"
           tags: true
+
+      # 머지된 브랜치 삭제
+      - name: Delete release/* branches
+        uses: dawidd6/action-delete-branch@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branches: ${{ env.BRANCH_NAME }}
 
       # 신규 patch 버전 브랜치 생성
       - run: npm version prerelease --preid=rc -m "v%s - tagged by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
