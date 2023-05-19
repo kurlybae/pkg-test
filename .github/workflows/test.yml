@@ -1,0 +1,20 @@
+name: Tester
+
+on:
+  workflow_dispatch:
+    inputs:
+      branchname:
+        description: 'test'
+        required: true
+        default: 'release/5.1.0'
+
+jobs:
+  if_release_merged:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "The PR was merged ${{inputs.branchname}}"
+      - run: echo "BRANCH_NAME=${{inputs.branchname}}" >> $GITHUB_ENV
+      - run: echo "test=$GITHUB_REF"
+      - id: export_version
+        run: echo "VERSION=${BRANCH_NAME/release\/}" # >> "$GITHUB_OUTPUT"
+      - run: echo "VERSION=${{inputs.branchname}}"
