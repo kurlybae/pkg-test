@@ -38,10 +38,8 @@ jobs:
 
       # 신규 patch 버전 브랜치 생성
       - run: npm version prerelease --preid=rc -m "v%s - tagged by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
-      - name: get new version
-        run: echo "NEW_VERSION=$(npm -s run env echo '${npm_package_version/-rc*}')" >> $GITHUB_ENV
       - name: get new branch name
-        run: echo "NEW_BRANCH_NAME=release/$NEW_VERSION" >> $GITHUB_ENV
+        run: echo NEW_BRANCH_NAME=release/$(npm pkg get version --workspaces=false | tr -d \") | sed 's/-rc.*//' >> $GITHUB_ENV
       - name: checkout new version branch
         run: git checkout -b $NEW_BRANCH_NAME
       - name: Push New Version Branch
