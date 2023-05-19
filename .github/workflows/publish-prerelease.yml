@@ -23,12 +23,12 @@ jobs:
       - run: git tag -d $(git tag -l)
 
       # publish
-      - run: npm publish
+      - run: npm publish --tag next
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Push commit # publish 성공한 경우만 새로운 태그 push
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.head_ref }}
+          branch: ${{ github.ref }}
           tags: false
