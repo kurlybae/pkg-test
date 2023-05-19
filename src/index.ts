@@ -1,3 +1,1 @@
-import * as Calculator from './services/calculator'
-
-export {Calculator}
+export * as Calculator from './services/calculator'
