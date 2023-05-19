@@ -33,6 +33,8 @@ ___
 
 ▸ **subtract**(`a`, `b`): `number`
 
+뺄셈요
+
 #### Parameters
 
 | Name | Type |
