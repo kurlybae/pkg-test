@@ -1,0 +1,12 @@
+name: Release Package
+
+on:
+  push:
+    branches: [main]
+jobs:
+  if-release-merged:
+    if: github.event.pull_request.merged == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "The PR was merged"
+
