@@ -7,8 +7,12 @@
     "test": "jest --detectOpenHandles",
     "release": "standard-version",
     "build": "rm -rf dist && tsc",
-    "prepare": "npm run build",
-    "docs:generate": "typedoc"
+    "docs:generate": "typedoc",
+    "preversion": "npm test",
+    "preversion:readme": "replace '\\d+\\.\\d+\\.\\d+' \"$npm_package_version\" ./README.md && git add README.md",
+    "preversion:docs": "npm run docs:generate && git add -A docs",
+    "version": "npm run preversion:readme && npm run preversion:docs",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
