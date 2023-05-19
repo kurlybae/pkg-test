@@ -35,7 +35,7 @@ jobs:
           tags: true
 
       # 머지된 브랜치 삭제
-      - name: Delete release/* branches
+      - name: Delete merged branches
         uses: dawidd6/action-delete-branch@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -52,4 +52,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ env.NEW_BRANCH_NAME }}
+          tags: false
 
