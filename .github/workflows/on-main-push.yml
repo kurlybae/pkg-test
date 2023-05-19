@@ -12,7 +12,7 @@ jobs:
     if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.export_version.VERSION }}
+      version: ${{ steps.export_version.outputs.VERSION }}
     steps:
       - run: echo "The PR was merged - ${{github.event.pull_request.head.ref}}"
       - run: echo "BRANCH_NAME=${{github.event.pull_request.head.ref}}" >> $GITHUB_ENV
