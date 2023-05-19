@@ -16,6 +16,8 @@
 
 ▸ **multiply**(`a`, `b`): `number`
 
+곱셈스
+
 #### Parameters
 
 | Name | Type |
