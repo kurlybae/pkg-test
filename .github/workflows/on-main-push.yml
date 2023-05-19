@@ -21,7 +21,7 @@ jobs:
       - run: echo "VERSION=${BRANCH_NAME/release\/}" >> $GITHUB_ENV
       - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
       - run: git config --global user.name "github-action[bot]"
-      - run: npm version $VERSION -m "v%s - tagged by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
+      - run: npm version $VERSION -m "v%s - published by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
 
       # publish
       - run: npm publish
@@ -42,7 +42,8 @@ jobs:
           branches: ${{ env.BRANCH_NAME }}
 
       # 신규 patch 버전 브랜치 생성
-      - run: npm version prerelease --preid=rc -m "v%s - tagged by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
+      - run: npm version prerelease --preid=rc -m "v%s - created by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
+      - run: git tag -d $(git tag -l)
       - name: get new branch name
         run: echo NEW_BRANCH_NAME=release/$(npm pkg get version --workspaces=false | tr -d \") | sed 's/-rc.*//' >> $GITHUB_ENV
       - name: checkout new version branch
