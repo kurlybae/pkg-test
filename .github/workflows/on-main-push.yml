@@ -8,21 +8,42 @@ on:
 #  push:
 #    branches: [main]
 jobs:
-  if_release_merged:
+  publish-gpr:
     if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.export_version.outputs.VERSION }}
     steps:
-      - run: echo "The PR was merged - ${{github.event.pull_request.head.ref}}"
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          registry-url: https://npm.pkg.github.com/
+      # npm version
       - run: echo "BRANCH_NAME=${{github.event.pull_request.head.ref}}" >> $GITHUB_ENV
-      - id: export_version
-        run: echo "VERSION=${BRANCH_NAME/release\/}" >> $GITHUB_OUTPUT
-  job2:
-    runs-on: ubuntu-latest
-    needs: if_release_merged
-    steps:
-      - env:
-          VERSION: ${{needs.if_release_merged.outputs.version}}
-        run: echo "$VERSION"
+      - run: echo "VERSION=${BRANCH_NAME/release\/}" >> $GITHUB_ENV
+      - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
+      - run: git config --global user.name "github-action[bot]"
+      - run: npm version $VERSION -m "v%s - tagged by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
+
+      # publish
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Push commit # publish 성공한 경우만 새로운 태그 push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: "main"
+          tags: true
+
+      # 신규 patch 버전 브랜치 생성
+      - run: npm version prerelease --preid=rc -m "v%s - tagged by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
+      - name: get new branch name
+        run: echo "NEW_BRANCH_NAME=release/$(npm -s run env echo '${npm_package_version/-rc*}')" >> $GITHUB_ENV
+      - name: checkout new version branch
+        run: git checkout -b $NEW_BRANCH_NAME
+      - name: Push New Version Branch
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.NEW_BRANCH_NAME }}
 
