@@ -15,8 +15,8 @@ jobs:
 #       version: ${{ steps.export_version.VERSION }}
     steps:
       - run: echo "The PR was merged ${{github.event.pull_request.head.ref}}"
-      - run: export BRANCH_NAME=${{github.event.pull_request.head.ref}}
-      - run: echo "test=${GITHUB_REF}"
+      - run: echo "BRANCH_NAME=${{github.event.pull_request.head.ref}}" >> $GITHUB_ENV
+      - run: echo "test=$GITHUB_REF"
       - id: export_version
         run: echo "VERSION=${BRANCH_NAME/release\/}" # >> "$GITHUB_OUTPUT"
       - run: echo "VERSION=${{github.event.pull_request.head.ref}}"
