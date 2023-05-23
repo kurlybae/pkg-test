@@ -65,7 +65,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: git-config-artifact
-          path: ~/.gitconfig
+          path: ~
       - run: npm version $VERSION -m "v%s - published by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
 
       # publish 성공한 경우만 새로운 태그 push
@@ -134,7 +134,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: git-config-artifact
-          path: ~/.gitconfig
+          path: ~
       # 신규 patch 버전 브랜치 생성
       - run: npm version prerelease --preid=rc -m "v%s - created by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
       - name: get new branch name
