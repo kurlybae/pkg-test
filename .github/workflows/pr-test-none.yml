@@ -1,0 +1,15 @@
+name: PR Test (None)
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+      - 'release/*'
+    paths-ignore:
+      - 'src/**'
+
+jobs:
+  pr-test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "No test required"'
