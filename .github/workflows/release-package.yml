@@ -35,7 +35,7 @@ jobs:
       version: ${{ env.VERSION }}
 
   publish-gpr:
-    name: '정식 배포'
+    name: '패키지 배포 (npm publish)'
     needs: if-release-merged
     runs-on: ubuntu-latest
     env:
