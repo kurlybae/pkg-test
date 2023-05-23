@@ -22,7 +22,7 @@ jobs:
           git fetch --quiet
           remote_branch=$(git branch -r --list "origin/release/*")
           if [[ -n "$remote_branch" ]]; then
-            echo "Error: 2개 이상의 release/* 브랜치가 존재할 수 없습니다. 기존 브랜치를 제거 후 다시 실행해주세요"
+            echo "Error: 2개 이상의 release/* 브랜치가 존재할 수 없습니다. 기존 브랜치를 제거 후 다시 시도하세요"
             exit 1
           fi
   create-branch:
