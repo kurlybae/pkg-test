@@ -1,12 +1,12 @@
-name: 정식 배포
+name: Test 3
 
 on:
-  pull_request_target:
-    types: [ closed ]
-    branches: [ main ]
-
-env:
-  target-branch: main
+  workflow_dispatch:
+    inputs:
+      branch-name:
+        description: 'branch'
+        required: true
+        default: 'temp'
 
 jobs:
   if-release-merged:
@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{inputs.branch-name}}
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
@@ -27,9 +29,8 @@ jobs:
       - name: Install Dependencies
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
-      # npm version
-      - run: echo "BRANCH_NAME=${{github.event.pull_request.head.ref}}" >> $GITHUB_ENV
-      - run: echo "VERSION=${BRANCH_NAME/release\/}" >> $GITHUB_ENV
+      - run: echo "BRANCH_NAME=test-branch-name" >> $GITHUB_ENV
+      - run: echo "VERSION=minor" >> $GITHUB_ENV
     outputs:
       branch-name: ${{ env.BRANCH_NAME }}
       version: ${{ env.VERSION }}
@@ -43,6 +44,8 @@ jobs:
       VERSION: ${{ needs.if-release-merged.outputs.version }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{inputs.branch-name}}
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
@@ -59,62 +62,44 @@ jobs:
       - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
       - run: git config --global user.name "github-action[bot]"
       - run: npm version $VERSION -m "v%s - published by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       # publish 성공한 경우만 새로운 태그 push
       - name: Push commit
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ env.target-branch }}
+          branch: ${{inputs.branch-name}}
           tags: true
-
   create-release:
-    name: 'Release 생성'
     needs: [ if-release-merged, publish-gpr ]
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ needs.if-release-merged.outputs.version }}
     steps:
+      # release 생성
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ env.VERSION }}
-          release_name: v${{ env.VERSION }} - ${{ github.event.pull_request.title }}
-          body: |
-            **Pull Request**: ${{github.server_url}}/${{github.repository}}/pull/${{ github.event.number }}
-            [Documentation](${{github.server_url}}/${{github.repository}}/tree/v${{env.VERSION}}/docs/README.md)
-            ${{ github.event.pull_request.body }}
-          draft: false
-          prerelease: false
+        run: echo "create release ${{github.server_url}}/${{github.repository}}/tree/v${{env.VERSION}}/docs/README.md"
 
+  # 머지된 브랜치 삭제
   delete-merged-branch:
-    name: '배포된 release 브랜치 삭제 (오류무시)'
     needs: [ if-release-merged, publish-gpr ]
     runs-on: ubuntu-latest
+    continue-on-error: true
     env:
       BRANCH_NAME: ${{ needs.if-release-merged.outputs.branch-name }}
     steps:
       - name: Delete merged branches
-        continue-on-error: true
         uses: dawidd6/action-delete-branch@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branches: ${{ env.BRANCH_NAME }}
 
+  # rc 버전 태그 삭제
   delete-prerelease-tags:
-    name: 'Prerelease 태그 삭제'
     needs: [ if-release-merged, publish-gpr ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ env.target-branch }}
       - run: git fetch --tags
       - run: if [[ $(git tag -l "*-rc.*") ]]; then git push origin -d $(git tag -l "*-rc.*"); fi
         env:
@@ -123,13 +108,12 @@ jobs:
 
   # 신규 patch 버전 브랜치 생성
   create-new-branch:
-    name: '신규 release 브랜치 생성 (patch version)'
     needs: [ if-release-merged, publish-gpr ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ env.target-branch }}
+          ref: ${{inputs.branch-name}}
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
@@ -158,7 +142,6 @@ jobs:
           tags: true
 
   delete-prerelease-packages:
-    name: 'Prerelease 패키지 삭제'
     needs: [ if-release-merged, publish-gpr ]
     runs-on: ubuntu-latest
     steps:
