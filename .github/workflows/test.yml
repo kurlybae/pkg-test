@@ -24,5 +24,5 @@ jobs:
     needs: job_1
     runs-on: ubuntu-latest
     steps:
-      - run: echo "${{ needs.joba_1.outputs.BRANCH_NAME_TEST }}"
+      - run: echo "${{ needs.job_1.outputs.BRANCH_NAME_TEST }}"
     
