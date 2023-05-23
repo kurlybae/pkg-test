@@ -22,3 +22,10 @@ export function multiply(a: number, b: number):number {
 export function test(a: number, b: number):number {
     return a * b
 }
+
+/**
+ *  그냥 테스트용22
+ */
+export function test2(a: number, b: number):number {
+    return a * b
+}
