@@ -1,0 +1,20 @@
+name: Tester2
+
+on:
+  workflow_dispatch:
+    inputs:
+      branchname:
+        description: 'test'
+        required: true
+        default: 'release/5.1.0'
+
+jobs:
+  delete-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete merged branches
+        uses: dawidd6/action-delete-branch@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branches: ${{ inputs.branchname }}
+    
