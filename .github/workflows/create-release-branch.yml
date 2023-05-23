@@ -1,0 +1,40 @@
+name: Create Release Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      versioning_type:
+        description: 'Semantic Versioning Type (major/minor/patch)'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          registry-url: https://npm.pkg.github.com/
+      - run: npm ci
+      - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
+      - run: git config --global user.name "github-action[bot]"
+      # 신규 브랜치 생성
+      - run: npm version pre${{ inputs.versioning_type }} --preid=rc -m "v%s - created by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
+      - name: get new branch name
+        run: echo NEW_BRANCH_NAME=release/$(npm pkg get version --workspaces=false | tr -d \") | sed 's/-rc.*//' >> $GITHUB_ENV
+      - name: checkout new version branch
+        run: git checkout -b $NEW_BRANCH_NAME
+      - name: Push New Version Branch
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.NEW_BRANCH_NAME }}
+          tags: true
+

@@ -1,4 +1,4 @@
-name: Publish prerelease
+name: Prerelease Package
 
 on:
   push:
@@ -20,7 +20,6 @@ jobs:
       - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
       - run: git config --global user.name "github-action[bot]"
       - run: npm version prerelease --preid=rc -m "prerelease v%s"
-      - run: git tag -d $(git tag -l)
 
       # publish
       - run: npm publish --tag next
@@ -31,4 +30,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
-          tags: false
+          tags: true
