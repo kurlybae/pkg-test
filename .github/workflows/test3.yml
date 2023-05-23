@@ -10,7 +10,7 @@ on:
 
 jobs:
   if-release-merged:
-    description: '조건 체크 / node_module 등 준비'
+    name: '조건 체크 / node_module 등 준비'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -36,7 +36,7 @@ jobs:
       version: ${{ env.VERSION }}
 
   publish-gpr:
-    description: '정식 배포'
+    name: '정식 배포'
     needs: if-release-merged
     runs-on: ubuntu-latest
     env:
