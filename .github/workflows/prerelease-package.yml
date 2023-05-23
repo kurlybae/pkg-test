@@ -1,4 +1,4 @@
-name: Prerelease Package
+name: Prerelease 배포
 
 on:
   push:
