@@ -28,10 +28,6 @@ jobs:
       - name: Install Dependencies
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
-      - uses: actions/upload-artifact@v3
-        with:
-          name: node-module-artifact
-          path: node_modules
       - run: echo "BRANCH_NAME=test-branch-name" >> $GITHUB_ENV
       - run: echo "VERSION=test-version" >> $GITHUB_ENV
       - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
@@ -57,10 +53,15 @@ jobs:
         with:
           node-version: 16.x
           registry-url: https://npm.pkg.github.com/
-      - uses: actions/download-artifact@v3
+      - name: Cache node modules
+        id: node-cache
+        uses: actions/cache@v2
         with:
-          name: node-module-artifact
           path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/.package-hash-for-cache') }}
+      - name: Install Dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
       - uses: actions/download-artifact@v3
         with:
           name: git-config-artifact
@@ -121,10 +122,15 @@ jobs:
         with:
           node-version: 16.x
           registry-url: https://npm.pkg.github.com/
-      - uses: actions/download-artifact@v3
+      - name: Cache node modules
+        id: node-cache
+        uses: actions/cache@v2
         with:
-          name: node-module-artifact
           path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/.package-hash-for-cache') }}
+      - name: Install Dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
       - uses: actions/download-artifact@v3
         with:
           name: git-config-artifact
