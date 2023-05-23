@@ -1,11 +1,10 @@
 {
   "name": "@kurlybae/pkg-test",
-  "version": "3.3.13",
+  "version": "3.3.9-rc.3",
   "description": "",
   "main": "dist",
   "scripts": {
     "prepare": "husky install",
-    "hash-package-lock": "node hash-package-lock.js && git add .package-hash-for-cache",
     "test": "jest --detectOpenHandles",
     "release": "standard-version",
     "build": "rm -rf dist && tsc",

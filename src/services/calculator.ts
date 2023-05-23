@@ -10,7 +10,7 @@ export function subtract(a: number, b: number):number {
 }
 
 /**
- * 곱셈스
+ * 곱셈스ㄴㄴ
  */
 export function multiply(a: number, b: number):number {
     return a * b
