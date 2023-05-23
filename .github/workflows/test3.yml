@@ -84,18 +84,6 @@ jobs:
       - name: Create Release
         id: create_release
         run: echo "create release ${{github.server_url}}/${{github.repository}}/tree/v${{env.VERSION}}/docs/README.md"
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: v${{ env.VERSION }}
-          release_name: v${{ env.VERSION }} - ${{ github.event.pull_request.title }}
-          body: |
-            **Pull Request**: ${{github.server_url}}/${{github.repository}}/pull/${{ github.event.number }}
-            [Documentation](${{github.server_url}}/${{github.repository}}/tree/v${{env.VERSION}}/docs/README.md)
-            ${{ github.event.pull_request.body }}
-          draft: false
-          prerelease: false
 
   delete-merged-branch:
     needs: [ if-release-merged, publish-gpr ]
