@@ -9,7 +9,7 @@ on:
         default: 'release/5.1.0'
 
 jobs:
-  if_release_merged:
+  job_1:
     runs-on: ubuntu-latest
     steps:
       - run: echo "The PR was merged ${{inputs.branchname}}"
@@ -18,3 +18,16 @@ jobs:
       - id: export_version
         run: echo "VERSION=${BRANCH_NAME/release\/}" # >> "$GITHUB_OUTPUT"
       - run: echo "VERSION=${{inputs.branchname}}"
+    outputs:
+      BRANCH_NAME_TEST: ${{ env.BRANCH_NAME }}
+  job_2:
+    needs: job_1
+    runs-on: ubuntu-latest
+    env:
+      MY_VAR: ${{ needs.job_1.outputs.BRANCH_NAME_TEST }}
+      MY_VAR_2: ${{ needs.job_1.env.BRANCH_NAME }}
+    steps:
+      - run: echo "${{ needs.job_1.outputs.BRANCH_NAME_TEST }}"
+      - run: echo "second test ${{env.MY_VAR}}"
+      - run: echo "third test ${{env.MY_VAR_2}}"
+    
