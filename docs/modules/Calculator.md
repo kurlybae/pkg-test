@@ -9,6 +9,7 @@
 - [multiply](Calculator.md#multiply)
 - [subtract](Calculator.md#subtract)
 - [sum](Calculator.md#sum)
+- [test](Calculator.md#test)
 
 ## Functions
 
@@ -53,6 +54,25 @@ ___
 ### sum
 
 ▸ **sum**(`a`, `b`): `number`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `a` | `number` |
+| `b` | `number` |
+
+#### Returns
+
+`number`
+
+___
+
+### test
+
+▸ **test**(`a`, `b`): `number`
+
+그냥 테스트용
 
 #### Parameters
 
