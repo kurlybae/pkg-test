@@ -56,8 +56,10 @@ jobs:
       - name: Install Dependencies
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
-      - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
-      - run: git config --global user.name "github-action[bot]"
+      - name: Git Global Config
+        run: |
+          git config --global user.email "github-action[bot]@users.noreply.github.com"
+          git config --global user.name "github-action[bot]"
       - run: npm version $VERSION -m "v%s - published by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
       - run: npm publish
         env:
@@ -121,7 +123,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: git tag -d $(git tag -l)
 
-  # 신규 patch 버전 브랜치 생성
   create-new-branch:
     name: '신규 release 브랜치 생성 (patch version)'
     needs: [ if-release-merged, publish-gpr ]
@@ -143,8 +144,10 @@ jobs:
       - name: Install Dependencies
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
-      - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
-      - run: git config --global user.name "github-action[bot]"
+      - name: Git Global Config
+        run: |
+          git config --global user.email "github-action[bot]@users.noreply.github.com"
+          git config --global user.name "github-action[bot]"
       - run: npm version prerelease --preid=rc -m "v%s - created by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
       - name: get new branch name
         run: echo NEW_BRANCH_NAME=release/$(npm pkg get version --workspaces=false | tr -d \") | sed 's/-rc.*//' >> $GITHUB_ENV
@@ -162,11 +165,14 @@ jobs:
     needs: [ if-release-merged, publish-gpr ]
     runs-on: ubuntu-latest
     steps:
-      # rc 패키지 삭제
+      - run: |
+          repo_name="${{ github.repository }}"
+          repo_owner="${{ github.repository_owner }}"
+          echo "REPO_NAME=${repo_name#"$repo_owner/"}" >> $GITHUB_ENV
       - uses: actions/delete-package-versions@v4
         with:
           owner: ${{ github.repository_owner }}
-          package-name: 'pkg-test'
+          package-name: ${{ env.REPO_NAME }}
           package-type: 'npm'
           token: ${{ secrets.GITHUB_TOKEN }}
           min-versions-to-keep: 0
