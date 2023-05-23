@@ -60,6 +60,7 @@ jobs:
 
       # 머지된 브랜치 삭제
       - name: Delete merged branches
+        continue-on-error: true
         uses: dawidd6/action-delete-branch@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -68,6 +69,7 @@ jobs:
       # rc 버전 태그 삭제
       - run: git fetch --tags
       - run: if [[ $(git tag -l "*-rc.*") ]]; then git push origin -d $(git tag -l "*-rc.*"); fi
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: git tag -d $(git tag -l)
@@ -79,6 +81,7 @@ jobs:
       - name: checkout new version branch
         run: git checkout -b $NEW_BRANCH_NAME
       - name: Push New Version Branch
+        continue-on-error: true
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -87,8 +90,9 @@ jobs:
 
       # rc 패키지 삭제
       - uses: actions/delete-package-versions@v4
+        continue-on-error: true
         with:
-          owner: 'kurlybae'
+          owner: ${{ github.repository_owner }}
           package-name: 'pkg-test'
           package-type: 'npm'
           token: ${{ secrets.GITHUB_TOKEN }}
