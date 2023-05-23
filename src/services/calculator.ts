@@ -3,7 +3,7 @@ export function sum(a: number, b: number):number {
 }
 
 /**
- * 뺄셈요
+ * 뺄셈요dd
  */
 export function subtract(a: number, b: number):number {
     return a - b
