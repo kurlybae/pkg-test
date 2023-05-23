@@ -1,0 +1,169 @@
+name: Test 3
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch-name:
+        description: 'branch'
+        required: true
+        default: 'temp'
+
+jobs:
+  if-release-merged:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{inputs.branch-name}}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          registry-url: https://npm.pkg.github.com/
+      - name: Cache node modules
+        id: node-cache
+        uses: actions/cache@v2
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/.package-hash-for-cache') }}
+      - name: Install Dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - uses: actions/upload-artifact@v3
+        with:
+          name: node-module-artifact
+          path: node_modules
+      - run: echo "BRANCH_NAME=test-branch-name" >> $GITHUB_ENV
+      - run: echo "VERSION=test-version" >> $GITHUB_ENV
+      - run: git config --global user.email "github-action[bot]@users.noreply.github.com"
+      - run: git config --global user.name "github-action[bot]"
+      - uses: actions/upload-artifact@v3
+        with:
+          name: git-config-artifact
+          path: ~/.gitconfig
+    outputs:
+      branch-name: ${{ env.BRANCH_NAME }}
+      version: ${{ env.VERSION }}
+  publish-gpr:
+    needs: if-release-merged
+    runs-on: ubuntu-latest
+    env:
+      BRANCH_NAME: ${{ needs.if-release-merged.outputs.branch-name }}
+      VERSION: ${{ needs.if-release-merged.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{inputs.branch-name}}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          registry-url: https://npm.pkg.github.com/
+      - uses: actions/download-artifact@v3
+        with:
+          name: node-module-artifact
+          path: node_modules
+      - uses: actions/download-artifact@v3
+        with:
+          name: git-config-artifact
+          path: ~/.gitconfig
+      - run: npm version $VERSION -m "v%s - published by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
+
+      # publish 성공한 경우만 새로운 태그 push
+      - name: Push commit
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{inputs.branch-name}}
+          tags: true
+  create-release:
+    needs: [ if-release-merged, publish-gpr ]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.if-release-merged.outputs.version }}
+    steps:
+      # release 생성
+      - name: Create Release
+        id: create_release
+        run: echo "create release ${{github.server_url}}/${{github.repository}}/tree/v${{env.VERSION}}/docs/README.md"
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: v${{ env.VERSION }}
+          release_name: v${{ env.VERSION }} - ${{ github.event.pull_request.title }}
+          body: |
+            **Pull Request**: ${{github.server_url}}/${{github.repository}}/pull/${{ github.event.number }}
+            [Documentation](${{github.server_url}}/${{github.repository}}/tree/v${{env.VERSION}}/docs/README.md)
+            ${{ github.event.pull_request.body }}
+          draft: false
+          prerelease: false
+
+  delete-merged-branch:
+    needs: [ if-release-merged, publish-gpr ]
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      BRANCH_NAME: ${{ needs.if-release-merged.outputs.branch-name }}
+    steps:
+      # 머지된 브랜치 삭제
+      - name: Delete merged branches
+        uses: dawidd6/action-delete-branch@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branches: ${{ env.BRANCH_NAME }}
+
+  delete-prerelease-tags:
+    needs: [ if-release-merged, publish-gpr ]
+    runs-on: ubuntu-latest
+    steps:
+      # rc 버전 태그 삭제
+      - run: git fetch --tags
+      - run: if [[ $(git tag -l "*-rc.*") ]]; then git push origin -d $(git tag -l "*-rc.*"); fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: git tag -d $(git tag -l)
+
+  create-new-branch:
+    needs: [ if-release-merged, publish-gpr ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{inputs.branch-name}}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          registry-url: https://npm.pkg.github.com/
+      - uses: actions/download-artifact@v3
+        with:
+          name: node-module-artifact
+          path: node_modules
+      - uses: actions/download-artifact@v3
+        with:
+          name: git-config-artifact
+          path: ~/.gitconfig
+      # 신규 patch 버전 브랜치 생성
+      - run: npm version prerelease --preid=rc -m "v%s - created by ${{github.server_url}}/${{github.repository}}/actions/runs/${{github.run_id}}"
+      - name: get new branch name
+        run: echo NEW_BRANCH_NAME=release/$(npm pkg get version --workspaces=false | tr -d \") | sed 's/-rc.*//' >> $GITHUB_ENV
+      - name: checkout new version branch
+        run: git checkout -b $NEW_BRANCH_NAME
+      - name: Push New Version Branch
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.NEW_BRANCH_NAME }}
+          tags: true
+
+  delete-prerelease-packages:
+    needs: [ if-release-merged, publish-gpr ]
+    runs-on: ubuntu-latest
+    steps:
+      # rc 패키지 삭제
+      - uses: actions/delete-package-versions@v4
+        with:
+          owner: ${{ github.repository_owner }}
+          package-name: 'pkg-test'
+          package-type: 'npm'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-versions-to-keep: 0
+          delete-only-pre-release-versions: "true"
