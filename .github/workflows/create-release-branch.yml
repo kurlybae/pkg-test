@@ -18,7 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: |
+      - name: '현재 존재하는 release/* 브랜치가 있는지 확인'
+        run: |
           git fetch --quiet
           remote_branch=$(git branch -r --list "origin/release/*")
           if [[ -n "$remote_branch" ]]; then
