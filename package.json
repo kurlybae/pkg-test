@@ -1,6 +1,6 @@
 {
   "name": "@kurlybae/pkg-test",
-  "version": "3.3.8-rc.1",
+  "version": "3.3.8-rc.2",
   "description": "",
   "main": "dist",
   "scripts": {
