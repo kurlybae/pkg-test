@@ -10,6 +10,7 @@
 - [subtract](Calculator.md#subtract)
 - [sum](Calculator.md#sum)
 - [test](Calculator.md#test)
+- [test2](Calculator.md#test2)
 
 ## Functions
 
@@ -73,6 +74,25 @@ ___
 ▸ **test**(`a`, `b`): `number`
 
 그냥 테스트용
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `a` | `number` |
+| `b` | `number` |
+
+#### Returns
+
+`number`
+
+___
+
+### test2
+
+▸ **test2**(`a`, `b`): `number`
+
+그냥 테스트용22
 
 #### Parameters
 
