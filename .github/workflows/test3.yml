@@ -30,7 +30,7 @@ jobs:
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
       - run: echo "BRANCH_NAME=test-branch-name" >> $GITHUB_ENV
-      - run: echo "VERSION=patch" >> $GITHUB_ENV
+      - run: echo "VERSION=minor" >> $GITHUB_ENV
     outputs:
       branch-name: ${{ env.BRANCH_NAME }}
       version: ${{ env.VERSION }}
