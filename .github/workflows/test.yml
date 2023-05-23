@@ -18,6 +18,8 @@ jobs:
       - id: export_version
         run: echo "VERSION=${BRANCH_NAME/release\/}" # >> "$GITHUB_OUTPUT"
       - run: echo "VERSION=${{inputs.branchname}}"
+      - run: echo "${{github.repository_owner}}"
+      - run: echo "${{github.repository}}"
     outputs:
       BRANCH_NAME_TEST: ${{ env.BRANCH_NAME }}
   job_2:
