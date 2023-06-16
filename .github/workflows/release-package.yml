@@ -65,6 +65,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
+      - name: Upload Built Files
+        uses: actions/upload-artifact@v3
+        with:
+          name: built-files
+          path: ./dist
+
       # publish 성공한 경우만 새로운 태그 push
       - name: Push commit
         uses: ad-m/github-push-action@master
@@ -80,6 +86,11 @@ jobs:
     env:
       VERSION: ${{ needs.if-release-merged.outputs.version }}
     steps:
+      - name: Download Built JS
+        uses: actions/download-artifact@v3
+        with:
+          name: built-files
+          path: ./dist
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -94,6 +105,15 @@ jobs:
             ${{ github.event.pull_request.body }}
           draft: false
           prerelease: false
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/pkg-test.min.js
+          asset_name: pkg-test.min.js
+          asset_content_type: application/javascript
 
   delete-merged-branch:
     name: '배포된 release 브랜치 삭제 (오류무시)'
