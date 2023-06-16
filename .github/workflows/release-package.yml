@@ -111,8 +111,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/pkg-test.min.js
-          asset_name: pkg-test.min.js
+          asset_path: ./dist/pkg-test-${{ env.VERSION }}.min.js
+          asset_name: pkg-test-${{ env.VERSION }}.min.js
           asset_content_type: application/javascript
 
   delete-merged-branch:

@@ -1,10 +1,11 @@
 const path = require('path');
+const version = require('./package.json').version;
 module.exports = {
   mode: 'production',
   entry: './src/index.ts',
   output: {
     library: 'PkgTest',
-    filename: 'pkg-test.min.js',
+    filename: `pkg-test-${version}.min.js`,
     path: path.resolve(__dirname, 'dist'),
   },
   resolve: {
