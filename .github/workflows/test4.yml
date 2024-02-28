@@ -11,7 +11,8 @@ jobs:
   delete-branch:
     runs-on: ubuntu-latest
     steps:
-      - name: Stoppable
+      - id: stoppable
+        name: Stoppable
         continue-on-error: true
         run: |
           if [[ "${{inputs.branchname}}" = "error" ]]; then
@@ -22,5 +23,6 @@ jobs:
             exit 0
           fi
       - name: Next Step
+        if: steps.stoppable.conclusion == 'success'
         run: echo hello
     
