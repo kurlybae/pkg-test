@@ -13,7 +13,6 @@ jobs:
     steps:
       - id: stoppable
         name: Stoppable
-        continue-on-error: true
         run: |
           if [[ "${{inputs.branchname}}" = "error" ]]; then
             echo "::error:: 오류코드 1"
