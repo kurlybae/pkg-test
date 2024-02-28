@@ -25,6 +25,6 @@ jobs:
         if: success()
         run: echo hello
       - name: Next Step on failed
-        if: failer()
+        if: failure()
         run: echo failed
     
