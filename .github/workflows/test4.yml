@@ -23,6 +23,6 @@ jobs:
             exit 0
           fi
       - name: Next Step
-        if: steps.stoppable.conclusion == 'success'
+        if: success()
         run: echo hello
     
