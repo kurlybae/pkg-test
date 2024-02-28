@@ -16,10 +16,9 @@ jobs:
         run: |
           if [[ "${{inputs.branchname}}" = "error" ]]; then
             echo "::error:: 오류코드"
-          else
-            echo "::set-output name=should_run::true"
+            echo "::set-output name=skip_new_branch::true"
           fi
       - name: Next Step
-        if: ${{ steps.stoppable.outputs.should_run == 'true' }}
+        if: ${{ steps.stoppable.outputs.skip_new_branch != 'true' }}
         run: echo hello
     
