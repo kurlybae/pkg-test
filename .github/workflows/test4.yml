@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Stoppable
+        continue-on-error: true
         run: |
           if [[ "${{inputs.branchname}}" = "error" ]]; then
             echo "::error:: 오류코드 1"
